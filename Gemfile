@@ -90,7 +90,7 @@ group :test do
 end
 
 group :no_docker, :test, :development do
-  gem 'mini_racer', platform: :ruby # C Ruby (MRI) or Rubinius, but NOT Windows
+  # gem 'mini_racer', platform: :ruby # C Ruby (MRI) or Rubinius, but NOT Windows
 end
 
 gem 'puma'
