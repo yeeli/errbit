@@ -126,8 +126,7 @@ GEM
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
-    ffi (1.16.3)
-    ffi (1.16.3-java)
+    ffi (1.17.0)
     flowdock (0.7.1)
       httparty (~> 0.7)
       multi_json
@@ -185,6 +184,9 @@ GEM
       addressable (~> 2.8)
       childprocess (~> 5.0)
     libv8-node (16.19.0.1)
+    libv8-node (16.19.0.1-arm64-darwin)
+    libv8-node (16.19.0.1-x86_64-darwin)
+    libv8-node (16.19.0.1-x86_64-linux)
     listen (3.0.8)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
@@ -510,6 +512,7 @@ DEPENDENCIES
   kaminari
   kaminari-mongoid
   launchy
+  libv8-node (~> 16.19.0.0)
   listen (~> 3.0.5)
   meta_request
   mini_racer
@@ -550,4 +553,4 @@ RUBY VERSION
    ruby 2.7.6p219
 
 BUNDLED WITH
-   2.3.21
+   2.4.22

@@ -51,7 +51,7 @@ gem 'httparty'
 gem 'flowdock'
 
 gem 'ri_cal'
-gem 'json', platform: 'jruby'
+gem 'json'
 
 # For Ruby 2.7
 gem 'bigdecimal', '~> 1.4.4'
@@ -90,6 +90,7 @@ group :test do
 end
 
 group :no_docker, :test, :development do
+  gem 'libv8-node', '~> 16.19.0.0'
   gem 'mini_racer', platform: :ruby # C Ruby (MRI) or Rubinius, but NOT Windows
 end
 
