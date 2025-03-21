@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     class CommentsController < ApplicationController
@@ -5,7 +7,7 @@ module Api
       skip_before_action :authenticate_user!
 
       respond_to :json, :xml
-      FIELDS = %w[_id err_id user_id body]
+      FIELDS = ["_id", "err_id", "user_id", "body"]
 
       def index
         results = benchmark("[api/v1/comments_controller/index] query time") do
@@ -25,13 +27,13 @@ module Api
           render status: :created, json: comment
         else
           render(
-            body:   { errors: comment.errors.full_messages }.to_json,
+            body: {errors: comment.errors.full_messages}.to_json,
             status: :unprocessable_entity
           )
         end
       end
 
-    private
+      private
 
       def comment_params
         # merge makes a copy, merge! edits in place

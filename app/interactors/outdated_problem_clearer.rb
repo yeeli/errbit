@@ -1,4 +1,4 @@
-require 'problem_destroy'
+# frozen_string_literal: true
 
 class OutdatedProblemClearer
   ##
@@ -15,7 +15,7 @@ class OutdatedProblemClearer
     end
   end
 
-private
+  private
 
   def nb_problem_outdated
     @count ||= criteria.count

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class IssueTrackerFieldDecorator < Draper::Decorator
   def initialize(field, field_info)
     @object = field
@@ -14,12 +16,12 @@ class IssueTrackerFieldDecorator < Draper::Decorator
   def input(form, issue_tracker)
     form.send(input_field, key.to_s,
       placeholder: field_info[:placeholder],
-      value:       issue_tracker.options[key.to_s])
+      value: issue_tracker.options[key.to_s])
   end
 
-private
+  private
 
   def input_field
-    object == :password ? :password_field : :text_field
+    (object == :password) ? :password_field : :text_field
   end
 end

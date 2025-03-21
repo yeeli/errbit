@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
@@ -5,11 +7,8 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :set_time_zone
 
-private
+  private
 
-  ##
-  # Check if the current_user is admin or not and redirect to root url if not
-  #
   def require_admin!
     return if user_signed_in? && current_user.admin?
 
@@ -24,7 +23,7 @@ private
 
   def authenticate_user_from_token!
     user_token = params[User.token_authentication_key].presence
-    user       = user_token && User.find_by(authentication_token: user_token)
+    user = user_token && User.find_by(authentication_token: user_token)
 
     sign_in user, store: false if user
   end

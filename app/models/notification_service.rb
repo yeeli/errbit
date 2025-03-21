@@ -1,7 +1,12 @@
+# frozen_string_literal: true
+
 class NotificationService
+  LABEL = ""
+
   include Mongoid::Document
 
   include Rails.application.routes.url_helpers
+
   default_url_options[:host] = ActionMailer::Base.default_url_options[:host]
   default_url_options[:port] = ActionMailer::Base.default_url_options[:port]
 
@@ -18,14 +23,17 @@ class NotificationService
 
   validate :check_params
 
-  if Errbit::Config.per_app_notify_at_notices
-    FIELDS = [[:notify_at_notices,
-               { placeholder: 'comma separated numbers or simply 0 for every notice',
-                 label:       'notify on errors (0 for all errors)'
-               }
-              ]]
+  FIELDS = if Errbit::Config.per_app_notify_at_notices
+    [
+      [:notify_at_notices,
+        {
+          placeholder: "comma separated numbers or simply 0 for every notice",
+          label: "notify on errors (0 for all errors)"
+        }
+      ]
+    ]
   else
-    FIELDS = []
+    []
   end
 
   def notify_at_notices
@@ -51,11 +59,9 @@ class NotificationService
   end
 
   def url
-    nil
   end
 
   # Retrieve tracker label from either class or instance.
-  LABEL = ''
   def self.label
     self::LABEL
   end

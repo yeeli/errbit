@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Watcher
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -14,7 +16,7 @@ class Watcher
   attr_accessor :watcher_type
 
   def watcher_type
-    @watcher_type ||= email.present? ? 'email' : 'user'
+    @watcher_type ||= email.present? ? "email" : "user"
   end
 
   def label
@@ -25,7 +27,7 @@ class Watcher
     user.try(:email) || email
   end
 
-private
+  private
 
   def ensure_user_or_email
     errors.add(:base, "You must specify either a user or an email address") unless user.present? || email.present?
@@ -33,10 +35,11 @@ private
 
   def clear_unused_watcher_type
     case watcher_type
-    when 'user'
+    when "user"
       self.email = nil
-    when 'email'
-      self.user = self.user_id = nil
+    when "email"
+      self.user = nil
+      self.user_id = nil
     end
   end
 end

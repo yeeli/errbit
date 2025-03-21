@@ -1,17 +1,13 @@
-# Errbit [![CircleCI][circleci-img-url]][circleci-url] [![Code Climate][codeclimate-img-url]][codeclimate-url] [![Coveralls][coveralls-img-url]][coveralls-url] [![Deploy](https://www.herokucdn.com/deploy/button.svg)][heroku-deploy-url]
+# Errbit [![Deploy](https://www.herokucdn.com/deploy/button.svg)][heroku-deploy-url]
 
-[circleci-img-url]: https://circleci.com/gh/errbit/errbit.svg?style=shield
-[circleci-url]: https://circleci.com/gh/errbit/errbit
-[codeclimate-img-url]: https://codeclimate.com/github/errbit/errbit.png
-[codeclimate-url]: https://codeclimate.com/github/errbit/errbit
-[coveralls-img-url]: https://coveralls.io/repos/github/errbit/errbit/badge.png?branch=main
-[coveralls-url]: https://coveralls.io/github/errbit/errbit?branch=master
 [heroku-deploy-url]:https://heroku.com/deploy?template=https://github.com/errbit/errbit/tree/main
 
 ### The open source, self-hosted error catcher
 
 Errbit is a tool for collecting and managing errors from other applications.
-It is [Airbrake](http://airbrake.io) API compliant, so you can just point the `airbrake` gem to your Errbit server (see [howto](app/views/apps/_configuration_instructions.html.erb)).
+It is [Airbrake](https://www.airbrake.io) API compliant, so you can just
+point the `airbrake` gem to your Errbit server (see
+[howto](app/views/apps/_configuration_instructions.html.erb)).
 
 <table>
   <tr>
@@ -56,7 +52,7 @@ updates and notifications.
 
 The list of requirements to install Errbit are:
 
-* Ruby 2.7
+* Ruby 3.1
 * MongoDB >= 4.0.x
 
 Installation
@@ -73,6 +69,7 @@ Rails applications.
 
 Configuration
 -------------
+
 Errbit configuration is done entirely through environment variables. See
 [configuration](docs/configuration.md)
 
@@ -85,13 +82,14 @@ Notice Grouping
 The way Errbit arranges notices into error groups is configurable. By default,
 Errbit uses the notice's error class, error message, complete backtrace,
 component (or controller), action and environment name to generate a unique
-fingerprint for every notice. Notices with identical fingerprints appear in the
-UI as different occurences of the same error and notices with differing
+fingerprint for every notice. Notices with identical fingerprints appear in
+the UI as different occurrences of the same error and notices with differing
 fingerprints are displayed as separate errors.
 
 Changing the fingerprinter (under the "Config" menu) applies to all apps and
 the change affects only notices that arrive after the change. If you want to
-refingerprint old notices, you can run `rake errbit:notice_refingerprint`.
+refingerprint old notices, you can run
+`bundle exec rake errbit:notice_refingerprint`.
 
 Since version 0.7.0, the notice grouping can be separately configured for each
 app (under the "edit" menu).
@@ -109,13 +107,13 @@ Authentication
 * Set `GITHUB_AUTHENTICATION=true`
 * Register your instance of Errbit at https://github.com/settings/applications/new
 
-If you host Errbit at errbit.example.com, you would fill in:
+If you host Errbit at `errbit.example.com`, you would fill in:
 
 <dl>
   <dt>URL</dt>
-  <dd>http://errbit.example.com</dd>
+  <dd>https://errbit.example.com</dd>
   <dt>Callback URL</dt>
-  <dd>http://errbit.example.com/users/auth/github/callback</dd>
+  <dd>https://errbit.example.com/users/auth/github/callback</dd>
 </dl>
 
 * After you have registered your app, set `GITHUB_CLIENT_ID` and `GITHUB_SECRET`
@@ -131,7 +129,7 @@ create issues on GitHub. If you use another issue tracker, see [Issue
 Trackers](#issue-trackers).
 
 You can change the OAuth scope Errbit requests from GitHub by setting
-`GITHUB_ACCESS_SCOPE`. The default ['repo'] is very permissive, but there are a
+`GITHUB_ACCESS_SCOPE`. The default `['repo']` is very permissive, but there are a
 few others that could make sense for your needs:
 
 <dl>
@@ -140,7 +138,7 @@ few others that could make sense for your needs:
 <dt>GITHUB_ACCESS_SCOPE="['public_repo']"</dt>
 <dd>Allow creating issues for public repos only</dd>
 <dt>GITHUB_ACCESS_SCOPE="[]"</dt>
-<dd>No permissions at all, but allows errbit login through github</dd>
+<dd>No permissions at all, but allows Errbit login through GitHub</dd>
 </dl>
 
 * `GITHUB_ORG_ID` is an optional environment variable you can set to your own
@@ -149,16 +147,17 @@ few others that could make sense for your needs:
   accounts for new users.
 
 ### Configuring Google authentication:
-* Set GOOGLE_AUTHENTICATION=true
+
+* Set `GOOGLE_AUTHENTICATION=true`
 * Register your instance of Errbit at https://console.developers.google.com/apis/api/plus/overview
 
-If you host Errbit at errbit.example.com, you would fill in:
+If you host Errbit at `errbit.example.com`, you would fill in:
 
 <dl>
 <dt>URL
-<dd>http://errbit.example.com
+<dd>https://errbit.example.com
 <dt>Callback URL
-<dd>http://errbit.example.com/users/auth/google_oauth2/callback
+<dd>https://errbit.example.com/users/auth/google_oauth2/callback
 </dl>
 
 * After you have registered your app, set `GOOGLE_CLIENT_ID` and `GOOGLE_SECRET`
@@ -172,29 +171,30 @@ to your user account on your **Edit profile** page.
 
 * Set `ERRBIT_USER_HAS_USERNAME=true`
 * Follow the [devise_ldap_authenticatable setup instructions](https://github.com/cschiewek/devise_ldap_authenticatable).
-* Set ```config.ldap_create_user = true``` in ```config/initializers/devise.rb```, this enables creating the users from LDAP, otherwhise login will not work.
-* Create a new initializer (e.g. ```config/initializers/devise_ldap.rb```) and add the following code to enable ldap authentication in the User-model:
+* Set `config.ldap_create_user = true` in `config/initializers/devise.rb`, this enables creating the users from LDAP, otherwise login will not work.
+* Create a new initializer (e.g. `config/initializers/devise_ldap.rb`) and add the following code to enable ldap authentication in the User-model:
 
 ```ruby
 Errbit::Config.devise_modules << :ldap_authenticatable
 ```
 
-* If you are authenticating by `username`, you will need to set the user's email manually
-before authentication. You must add the following lines to `app/models/user.rb`:
+* If you are authenticating by `username`, you will need to set the user's
+email manually before authentication. You must add the following lines to
+`app/models/user.rb`:
 
 ```ruby
-  def ldap_before_save
-    name = Devise::LDAP::Adapter.get_ldap_param(self.username, "givenName")
-    surname = Devise::LDAP::Adapter.get_ldap_param(self.username, "sn")
-    mail = Devise::LDAP::Adapter.get_ldap_param(self.username, "mail")
+def ldap_before_save
+  name = Devise::LDAP::Adapter.get_ldap_param(self.username, "givenName")
+  surname = Devise::LDAP::Adapter.get_ldap_param(self.username, "sn")
+  mail = Devise::LDAP::Adapter.get_ldap_param(self.username, "mail")
 
-    self.name = (name + surname).join ' '
-    self.email = mail.first
-  end
+  self.name = (name + surname).join(" ")
+  self.email = mail.first
+end
 ```
 
 * Now login with your user from LDAP, this will create a user in the database
-* Open a rails console and set the admin flag for your user:
+* Open a `bundle exec rails console` and set the admin flag for your user:
 
 ```ruby
 user = User.first
@@ -206,13 +206,13 @@ user.save!
 
 When upgrading Errbit, please run:
 
-```bash
+```shell
 git pull origin main # assuming origin is the github.com/errbit/errbit repo
 bundle install
-rake db:migrate
-rake db:mongoid:remove_undefined_indexes
-rake db:mongoid:create_indexes
-rake assets:precompile
+bundle exec rake db:migrate
+bundle exec rake db:mongoid:remove_undefined_indexes
+bundle exec rake db:mongoid:create_indexes
+bundle exec rake assets:precompile
 ```
 
 This will ensure that your application stays up to date with any schema changes.
@@ -225,7 +225,9 @@ Errbit can now display information about the user who experienced an error.
 This gives you the ability to ask the user for more information,
 and let them know when you've fixed the bug.
 
-The Airbrake gem will look for ```current_user``` or ```current_member```. By default it will only send the ```id``` of the user, to specify other attributes you can set ```config.user_attributes```. See [the Airbrake wiki for more information](https://github.com/airbrake/airbrake/wiki/Sending-current-user-information).
+The Airbrake gem will look for `current_user` or `current_member`. By default,
+it will only send the `id` of the user, to specify other attributes you can
+set `config.user_attributes`. See [the Airbrake wiki for more information](https://github.com/airbrake/airbrake/wiki/Sending-current-user-information).
 
 If user information is received with an error report,
 it will be displayed under the *User Details* tab:
@@ -241,6 +243,7 @@ https://github.com/airbrake/airbrake
 
 Javascript error notifications
 --------------------------------------
+
 You can log javascript errors that occur in your application by including the
 [airbrake-js](https://github.com/airbrake/airbrake-js) javascript library.
 
@@ -264,11 +267,10 @@ You can extend Errbit by adding Ruby gems and plugins which are typically gems.
 It's nice to keep track of which gems are core Errbit dependencies and which
 gems are your own dependencies. If you want to add gems to your own Errbit,
 place them in a new file called `UserGemfile` and Errbit will treat that file
-as an additional Gemfile. If you want to use a file with a different name, you
-can pass the name of that file in an environment variable named `USER_GEMFILE`.
-If you want to use errbit_jira_plugin, just add it to UserGemfile:
+as an additional Gemfile. If you want to use `errbit_jira_plugin`, just add it
+to `UserGemfile`:
 
-```bash
+```shell
 echo "gem 'errbit_jira_plugin'" > UserGemfile
 bundle install
 ```
@@ -296,7 +298,7 @@ or you can set up the GitHub Issues tracker for your **Self.Errbit** app:
 
   * Go to the **Self.Errbit** app's edit page. If that app does not exist yet,
     go to the apps page and click **Add a new App** to create it. (You can also
-    create it by running `rake airbrake:test`.)
+    create it by running `bundle exec rake airbrake:test`.)
   * In the **Issue Tracker** section, click **GitHub Issues**.
   * Fill in the **Account/Repository** field with **errbit/errbit**.
   * Fill in the **Username** field with your github username.
@@ -335,7 +337,6 @@ Errbit](https://github.com/errbit/errbit/wiki/People-using-Errbit). You may
 page](https://github.com/errbit/errbit/wiki/People-using-Errbit/_edit), and add
 your name and country to the list if you are using Errbit.
 
-
 Special Thanks
 --------------
 
@@ -346,7 +347,7 @@ Special Thanks
 * [Marcin Ciunelis (@martinciu)](https://github.com/martinciu) - Helping to improve Errbit's architecture
 * [Cyril Mougel (@shingara)](https://github.com/shingara) - Maintaining Errbit and contributing many features
 * [Relevance](http://thinkrelevance.com) - For giving me Open-source Fridays to work on Errbit and all my awesome co-workers for giving feedback and inspiration.
-* [Thoughtbot](http://thoughtbot.com) - For being great open-source advocates and setting the bar with [Airbrake](http://airbrake.io).
+* [Thoughtbot](https://thoughtbot.com) - For being great open-source advocates and setting the bar with [Airbrake](https://www.airbrake.io).
 
 See the [contributors graph](https://github.com/errbit/errbit/graphs/contributors) for more details.
 
@@ -358,9 +359,9 @@ See the [contribution guidelines](CONTRIBUTING.md)
 Running tests
 -------------
 
-Check the [.circleci/config.yml](.circleci/config.yml) file to see how tests are run
+Check the [.github/workflows/rspec.yml](.github/workflows/rspec.yml) file to see how tests are run
 
 Copyright
 ---------
 
-Copyright (c) 2010-2022 Errbit Team
+Copyright (c) 2010-2025 Errbit Team

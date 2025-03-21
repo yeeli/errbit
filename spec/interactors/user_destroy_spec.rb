@@ -1,21 +1,26 @@
-describe UserDestroy do
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe UserDestroy do
   let(:app) do
     Fabricate(
       :app,
       watchers: [
         Fabricate.build(:user_watcher, user: user)
-      ])
+      ]
+    )
   end
 
   describe "#destroy" do
     let!(:user) { Fabricate(:user) }
-    it 'should delete user' do
+    it "should delete user" do
       expect do
         UserDestroy.new(user).destroy
       end.to change(User, :count)
     end
 
-    it 'should delete watcher' do
+    it "should delete watcher" do
       expect do
         UserDestroy.new(user).destroy
       end.to change {

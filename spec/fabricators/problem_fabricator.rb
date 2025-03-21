@@ -1,8 +1,13 @@
+# frozen_string_literal: true
+
 Fabricator(:problem) do
   app { Fabricate(:app) }
+
   comments { [] }
-  error_class 'FooError'
-  environment 'production'
+
+  error_class "FooError"
+
+  environment "production"
 end
 
 Fabricator(:problem_with_comments, from: :problem) do
@@ -24,6 +29,7 @@ end
 Fabricator(:problem_resolved, from: :problem) do
   after_create do |pr|
     Fabricate(:notice, err: Fabricate(:err, problem: pr))
+
     pr.resolve!
   end
 end

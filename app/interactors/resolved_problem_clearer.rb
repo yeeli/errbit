@@ -1,4 +1,4 @@
-require 'problem_destroy'
+# frozen_string_literal: true
 
 class ResolvedProblemClearer
   ##
@@ -15,7 +15,7 @@ class ResolvedProblemClearer
     end
   end
 
-private
+  private
 
   def nb_problem_resolved
     @count ||= criteria.count

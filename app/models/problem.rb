@@ -1,15 +1,16 @@
+# frozen_string_literal: true
+
 # Represents a single Problem. The problem may have been
 # reported as various Errs, but the user has grouped the
 # Errs together as belonging to the same problem.
 
-# rubocop:disable Metrics/ClassLength. At some point we need to break up this class, but I think it doesn't have to be right now.
 class Problem
   include Mongoid::Document
   include Mongoid::Timestamps
 
   CACHED_NOTICE_ATTRIBUTES = {
-    messages:    :message,
-    hosts:       :host,
+    messages: :message,
+    hosts: :host,
     user_agents: :user_agent_string
   }.freeze
 
@@ -28,8 +29,8 @@ class Problem
   field :error_class
   field :where
   field :user_agents, type: Hash, default: {}
-  field :messages,    type: Hash, default: {}
-  field :hosts,       type: Hash, default: {}
+  field :messages, type: Hash, default: {}
+  field :hosts, type: Hash, default: {}
   field :comments_count, type: Integer, default: 0
 
   index app_id: 1
@@ -42,9 +43,9 @@ class Problem
 
   index({
     error_class: "text",
-    where:       "text",
-    message:     "text",
-    app_name:    "text",
+    where: "text",
+    message: "text",
+    app_name: "text",
     environment: "text"
   }, default_language: "english")
 
@@ -68,7 +69,7 @@ class Problem
   # infrequently searches happen
   scope :search, lambda { |value|
     notice = Notice.where(id: value).first
-    notice ? where(id: notice.err.problem_id) : where('$text' => { '$search' => value })
+    notice ? where(id: notice.err.problem_id) : where("$text" => {"$search" => value})
   }
 
   def self.all_else_unresolved(fetch_all)
@@ -90,11 +91,11 @@ class Problem
         filter_type, filter_value = filter_component_tuple
 
         # get rid of quotes that we pulled in from the regex matcher above
-        filter_value.gsub!(/^['"]/, '')
-        filter_value.gsub!(/['"]$/, '')
+        filter_value.gsub!(/^['"]/, "")
+        filter_value.gsub!(/['"]$/, "")
 
         # this is the only supported filter_type at this time
-        if filter_type == '-app'
+        if filter_type == "-app"
           filter_value
         end
       end
@@ -113,23 +114,23 @@ class Problem
     host_digest = Digest::MD5.hexdigest(notice.host)
     user_agent_digest = Digest::MD5.hexdigest(notice.user_agent_string)
 
-    Problem.where('_id' => id).find_one_and_update({
-      '$set' => {
-        'environment'                            => notice.environment_name,
-        'error_class'                            => notice.error_class,
-        'last_notice_at'                         => notice.created_at.utc,
-        'message'                                => notice.message,
-        'resolved'                               => false,
-        'resolved_at'                            => nil,
-        'where'                                  => notice.where,
-        "messages.#{message_digest}.value"       => notice.message,
-        "hosts.#{host_digest}.value"             => notice.host,
+    Problem.where("_id" => id).find_one_and_update({
+      "$set" => {
+        "environment" => notice.environment_name,
+        "error_class" => notice.error_class,
+        "last_notice_at" => notice.created_at.utc,
+        "message" => notice.message,
+        "resolved" => false,
+        "resolved_at" => nil,
+        "where" => notice.where,
+        "messages.#{message_digest}.value" => notice.message,
+        "hosts.#{host_digest}.value" => notice.host,
         "user_agents.#{user_agent_digest}.value" => notice.user_agent_string
       },
-      '$inc' => {
-        'notices_count'                          => 1,
-        "messages.#{message_digest}.count"       => 1,
-        "hosts.#{host_digest}.count"             => 1,
+      "$inc" => {
+        "notices_count" => 1,
+        "messages.#{message_digest}.count" => 1,
+        "hosts.#{host_digest}.count" => 1,
         "user_agents.#{user_agent_digest}.count" => 1
       }
     }, return_document: :after)
@@ -140,22 +141,25 @@ class Problem
 
     atomically do |doc|
       doc.set(
-        'environment'    => last_notice.environment_name,
-        'error_class'    => last_notice.error_class,
-        'last_notice_at' => last_notice.created_at,
-        'message'        => last_notice.message,
-        'where'          => last_notice.where,
-        'notices_count'  => notices_count.to_i > 1 ? notices_count - 1 : 0
+        "environment" => last_notice.environment_name,
+        "error_class" => last_notice.error_class,
+        "last_notice_at" => last_notice.created_at,
+        "message" => last_notice.message,
+        "where" => last_notice.where,
+        "notices_count" => (notices_count.to_i > 1) ? notices_count - 1 : 0
       )
 
       CACHED_NOTICE_ATTRIBUTES.each do |k, v|
         digest = Digest::MD5.hexdigest(notice.send(v))
         field = "#{k}.#{digest}"
 
-        if (doc[k].try(:[], digest).try(:[], :count)).to_i > 1
+        if doc[k].try(:[], digest).try(:[], :count).to_i > 1
           doc.inc("#{field}.count" => -1)
         else
-          doc.unset(field)
+          # NOTE: https://github.com/errbit/errbit/pull/1546
+          h = doc[k] || {}
+          h.delete(digest)
+          doc.set("#{k}": h)
         end
       end
     end
@@ -168,12 +172,12 @@ class Problem
 
       # find only notices related to this problem
       Notice.collection.find.aggregate([
-        { "$match" => { err_id: { "$in" => err_ids } } },
-        { "$group" => { _id: "$#{v}", count: { "$sum" => 1 } } }
+        {"$match" => {err_id: {"$in" => err_ids}}},
+        {"$group" => {_id: "$#{v}", count: {"$sum" => 1}}}
       ]).each do |agg|
-        send(k)[Digest::MD5.hexdigest(agg[:_id] || 'N/A')] = {
-          'value' => agg[:_id] || 'N/A',
-          'count' => agg[:count]
+        send(k)[Digest::MD5.hexdigest(agg[:_id] || "N/A")] = {
+          "value" => agg[:_id] || "N/A",
+          "count" => agg[:count]
         }
       end
     end
@@ -194,9 +198,7 @@ class Problem
     Rails.application.routes.url_helpers.app_problem_url(
       app,
       self,
-      protocol: Errbit::Config.protocol,
-      host:     Errbit::Config.host,
-      port:     Errbit::Config.port
+      host: Errbit::Config.host
     )
   end
 
@@ -225,7 +227,7 @@ class Problem
   end
 
   def unmerge!
-    attrs = { error_class: error_class, environment: environment }
+    attrs = {error_class: error_class, environment: environment}
     problem_errs = errs.to_a
 
     # associate and return all the problems
@@ -242,42 +244,42 @@ class Problem
     new_problems
   end
 
-  def grouped_notice_counts(since, group_by = 'day')
-    key_op = [['year', '$year'], ['day', '$dayOfYear'], ['hour', '$hour']]
+  def grouped_notice_counts(since, group_by = "day")
+    key_op = [["year", "$year"], ["day", "$dayOfYear"], ["hour", "$hour"]]
     key_op = key_op.take(1 + key_op.find_index { |key, _op| group_by == key })
-    project_date_fields = Hash[*key_op.collect { |key, op| [key, { op => "$created_at" }] }.flatten]
+    project_date_fields = Hash[*key_op.collect { |key, op| [key, {op => "$created_at"}] }.flatten]
     group_id_fields = Hash[*key_op.collect { |key, _op| [key, "$#{key}"] }.flatten]
     pipeline = [
       {
         "$match" => {
-          "err_id"     => { '$in' => errs.map(&:id) },
-          "created_at" => { "$gt" => since }
+          "err_id" => {"$in" => errs.map(&:id)},
+          "created_at" => {"$gt" => since}
         }
       },
-      { "$project" => project_date_fields },
-      { "$group" => { "_id" => group_id_fields, "count" => { "$sum" => 1 } } },
-      { "$sort" => { "_id" => 1 } }
+      {"$project" => project_date_fields},
+      {"$group" => {"_id" => group_id_fields, "count" => {"$sum" => 1}}},
+      {"$sort" => {"_id" => 1}}
     ]
     Notice.collection.aggregate(pipeline).find.to_a
   end
 
-  def zero_filled_grouped_noticed_counts(since, group_by = 'day')
+  def zero_filled_grouped_noticed_counts(since, group_by = "day")
     non_zero_filled = grouped_notice_counts(since, group_by)
-    buckets = group_by == 'day' ? 14 : 24
+    buckets = (group_by == "day") ? 14 : 24
 
-    ruby_time_method = group_by == 'day' ? :yday : :hour
+    ruby_time_method = (group_by == "day") ? :yday : :hour
     bucket_times = Array.new(buckets) { |ii| (since + ii.send(group_by)).send(ruby_time_method) }
     bucket_times.to_a.map do |bucket_time|
-      count = if (data_for_day = non_zero_filled.detect { |item| item.dig('_id', group_by) == bucket_time })
-                data_for_day['count']
+      count = if (data_for_day = non_zero_filled.detect { |item| item.dig("_id", group_by) == bucket_time })
+                data_for_day["count"]
               else
                 0
               end
-      { bucket_time => count }
+      {bucket_time => count}
     end
   end
 
-  def grouped_notice_count_relative_percentages(since, group_by = 'day')
+  def grouped_notice_count_relative_percentages(since, group_by = "day")
     zero_filled = zero_filled_grouped_noticed_counts(since, group_by).map { |h| h.values.first }
     max = zero_filled.max
     zero_filled.map do |number|
@@ -287,12 +289,18 @@ class Problem
 
   def self.ordered_by(sort, order)
     case sort
-    when "app"            then order_by(["app_name", order])
-    when "environment"    then order_by(["environment", order])
-    when "message"        then order_by(["message", order])
-    when "last_notice_at" then order_by(["last_notice_at", order])
-    when "count"          then order_by(["notices_count", order])
-    else fail("\"#{sort}\" is not a recognized sort")
+    when "app"
+      order_by(["app_name", order])
+    when "environment"
+      order_by(["environment", order])
+    when "message"
+      order_by(["message", order])
+    when "last_notice_at"
+      order_by(["last_notice_at", order])
+    when "count"
+      order_by(["notices_count", order])
+    else
+      fail("\"#{sort}\" is not a recognized sort")
     end
   end
 
@@ -302,17 +310,17 @@ class Problem
 
   def issue_type
     # Return issue_type if configured, but fall back to detecting app's issue tracker
-    attributes['issue_type'] ||=
+    attributes["issue_type"] ||=
     (app.issue_tracker_configured? && app.issue_tracker.type_tracker) || nil
   end
 
-private
+  private
 
   def attribute_count_decrease(name, value)
     counter = send(name)
     index = attribute_index(value)
-    if counter[index] && counter[index]['count'] > 1
-      counter[index]['count'] -= 1
+    if counter[index] && counter[index]["count"] > 1
+      counter[index]["count"] -= 1
     else
       counter.delete(index)
     end
@@ -323,4 +331,3 @@ private
     Digest::MD5.hexdigest(value.to_s)
   end
 end
-# rubocop:enable Metrics/ClassLength

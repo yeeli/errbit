@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
+require "rails_helper"
+
 RSpec.describe DestroyProblemsByIdJob, type: :job do
   before do
-    @app      = Fabricate(:app)
+    @app = Fabricate(:app)
     @problem1 = Fabricate(:problem, app: @app)
     @problem2 = Fabricate(:problem, app: @app)
     @problem3 = Fabricate(:problem, app: @app)

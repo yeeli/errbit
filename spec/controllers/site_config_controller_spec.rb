@@ -1,6 +1,10 @@
-describe SiteConfigController, type: 'controller' do
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe SiteConfigController, type: :controller do
   it_requires_admin_privileges for: {
-    index:  :get,
+    index: :get,
     update: :put
   }
 
@@ -8,18 +12,18 @@ describe SiteConfigController, type: 'controller' do
 
   before { sign_in admin }
 
-  describe '#index' do
-    it 'has an index action' do
+  describe "#index" do
+    it "has an index action" do
       get :index
     end
   end
 
-  describe '#update' do
-    it 'updates' do
+  describe "#update" do
+    it "updates" do
       put :update, params: {
         site_config: {
           notice_fingerprinter_attributes: {
-            backtrace_lines:  3,
+            backtrace_lines: 3,
             environment_name: false
           }
         }
@@ -31,7 +35,7 @@ describe SiteConfigController, type: 'controller' do
       expect(fingerprinter.backtrace_lines).to eq(3)
     end
 
-    it 'redirects to the index' do
+    it "redirects to the index" do
       put :update, params: {
         site_config: {
           notice_fingerprinter_attributes: {
@@ -43,7 +47,7 @@ describe SiteConfigController, type: 'controller' do
       expect(response).to redirect_to(site_config_index_path)
     end
 
-    it 'flashes a confirmation' do
+    it "flashes a confirmation" do
       put :update, params: {
         site_config: {
           notice_fingerprinter_attributes: {
@@ -52,20 +56,20 @@ describe SiteConfigController, type: 'controller' do
         }
       }
 
-      expect(request.flash[:success]).to eq 'Updated site config'
+      expect(request.flash[:success]).to eq "Updated site config"
     end
 
-    it 'updates apps that are using site wide notice fingerprinter' do
+    it "updates apps that are using site wide notice fingerprinter" do
       put :update, params: {
         site_config: {
           notice_fingerprinter_attributes: {
-            backtrace_lines:  10,
+            backtrace_lines: 10,
             environment_name: false
           }
         }
       }
 
-      app = App.new(name: 'my_app')
+      app = App.new(name: "my_app")
       app.save
 
       expect(app.notice_fingerprinter.backtrace_lines).to eq(10)
@@ -74,7 +78,7 @@ describe SiteConfigController, type: 'controller' do
       put :update, params: {
         site_config: {
           notice_fingerprinter_attributes: {
-            backtrace_lines:  11,
+            backtrace_lines: 11,
             environment_name: true
           }
         }

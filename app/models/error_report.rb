@@ -1,4 +1,4 @@
-require 'hoptoad_notifier'
+# frozen_string_literal: true
 
 ##
 # Processes a new error report.
@@ -35,8 +35,8 @@ class ErrorReport
   end
 
   def rails_env
-    rails_env = server_environment['environment-name']
-    rails_env = 'development' if rails_env.blank?
+    rails_env = server_environment["environment-name"]
+    rails_env = "development" if rails_env.blank?
     rails_env
   end
 
@@ -65,20 +65,20 @@ class ErrorReport
 
   def make_notice
     @notice = Notice.new(
-      app:                app,
-      message:            message,
-      error_class:        error_class,
-      backtrace:          backtrace,
-      request:            request,
+      app: app,
+      message: message,
+      error_class: error_class,
+      backtrace: backtrace,
+      request: request,
       server_environment: server_environment,
-      notifier:           notifier,
-      user_attributes:    user_attributes,
-      framework:          framework
+      notifier: notifier,
+      user_attributes: user_attributes,
+      framework: framework
     )
   end
 
   def retrieve_problem_was_resolved
-    @problem_was_resolved = Problem.where('_id' => @error.problem_id, resolved: true).exists?
+    @problem_was_resolved = Problem.where("_id" => @error.problem_id, :resolved => true).exists?
   end
 
   # Update problem cache with information about this notice
@@ -133,9 +133,9 @@ class ErrorReport
   end
 
   def should_keep?
-    app_version = server_environment['app-version'] || ''
+    app_version = server_environment["app-version"] || ""
     current_version = app.current_app_version
-    return true unless current_version.present?
+    return true if current_version.blank?
     return false if app_version.length <= 0
     Gem::Version.new(app_version) >= Gem::Version.new(current_version)
   end

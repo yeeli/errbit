@@ -1,15 +1,25 @@
+# frozen_string_literal: true
+
 class UsersController < ApplicationController
   before_action :require_admin!, except: [:edit, :update]
-  before_action :require_user_edit_priviledges, only: [:edit, :update]
+  before_action :require_user_edit_privileges, only: [:edit, :update]
 
   expose(:user)
   expose(:users) do
     User.order_by(name: :asc).page(params[:page]).per(current_user.per_page)
   end
 
-  def index; end
-  def new; end
-  def show; end
+  def index
+  end
+
+  def show
+  end
+
+  def new
+  end
+
+  def edit
+  end
 
   def create
     if user.save
@@ -22,7 +32,7 @@ class UsersController < ApplicationController
 
   def update
     if user.update(user_params)
-      flash[:success] = I18n.t('controllers.users.flash.update.success', name: user.name)
+      flash[:success] = I18n.t("controllers.users.flash.update.success", name: user.name)
 
       redirect_to user_path(user)
     else
@@ -30,17 +40,12 @@ class UsersController < ApplicationController
     end
   end
 
-  ##
-  # Destroy the user pass in args
-  #
-  # @param [ String ] id the id of user we want delete
-  #
   def destroy
     if user == current_user
-      flash[:error] = I18n.t('controllers.users.flash.destroy.error')
+      flash[:error] = I18n.t("controllers.users.flash.destroy.error")
     else
       UserDestroy.new(user).destroy
-      flash[:success] = I18n.t('controllers.users.flash.destroy.success', name: user.name)
+      flash[:success] = I18n.t("controllers.users.flash.destroy.success", name: user.name)
     end
     redirect_to users_path
   end
@@ -57,9 +62,9 @@ class UsersController < ApplicationController
     redirect_to user_path(user)
   end
 
-private
+  private
 
-  def require_user_edit_priviledges
+  def require_user_edit_privileges
     can_edit = current_user == user || current_user.admin?
     redirect_to(root_path) unless can_edit
   end
@@ -71,7 +76,7 @@ private
   def user_permit_params
     @user_permit_params ||= [:name, :username, :email, :github_login, :per_page, :time_zone]
     @user_permit_params << :admin if current_user.admin? && current_user.id != params[:id]
-    @user_permit_params |= [:password, :password_confirmation] if user_password_params.values.all? { |pa| !pa.blank? }
+    @user_permit_params |= [:password, :password_confirmation] if user_password_params.values.all?(&:present?)
     @user_permit_params
   end
 

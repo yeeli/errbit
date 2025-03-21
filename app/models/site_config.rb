@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class SiteConfig
-  CONFIG_SOURCE_SITE = 'site'.freeze
-  CONFIG_SOURCE_APP = 'app'.freeze
+  CONFIG_SOURCE_SITE = "site"
+  CONFIG_SOURCE_APP = "app"
 
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -28,8 +30,7 @@ class SiteConfig
   end
 
   def notice_fingerprinter_attributes
-    notice_fingerprinter.attributes.tap do |attrs|
-      attrs.delete('_id')
+    notice_fingerprinter.attributes.except("_id").tap do |attrs|
       attrs[:source] = CONFIG_SOURCE_SITE
     end
   end

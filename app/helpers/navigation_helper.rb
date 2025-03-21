@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module NavigationHelper
   # Returns ' active' if you are on a given controller
   #  - active_if_here(:users) => ' active' if users controller
@@ -12,23 +14,23 @@ module NavigationHelper
   # will not even set a class attribute if nil is passed back.
   def active_if_here(matches)
     current_controller = controller.controller_name.to_sym
-    current_action     = controller.action_name.to_sym
+    current_action = controller.action_name.to_sym
 
-    sections =  case matches
-                when Hash
-                  matches
-                when Array
-                  s = {}
-                  matches.each { |c| s[c] = :all }
-                  s
-                else
-                  { matches => :all }
-                end
+    sections = case matches
+    when Hash
+      matches
+    when Array
+      s = {}
+      matches.each { |c| s[c] = :all }
+      s
+    else
+      {matches => :all}
+    end
 
     active = nil
     sections.each do |controller, actions|
       actions = Array(actions)
-      active = ' active' if current_controller == controller && (actions.include?(:all) || actions.include?(current_action))
+      active = " active" if current_controller == controller && (actions.include?(:all) || actions.include?(current_action))
     end
     active
   end
@@ -38,8 +40,8 @@ module NavigationHelper
   # want to display the actual chronological occurrence number.
   #
   # E.G. - Given 6 notices, page 2 shows the second from last
-  # occurrence indexed by 1, but it is diplaying the 5th ever
-  # occurence of that error.
+  # occurrence indexed by 1, but it is displaying the 5th ever
+  # occurrence of that error.
   def page_count_from_end(current_page, total_pages)
     (total_pages.to_i - current_page.to_i) + 1
   end

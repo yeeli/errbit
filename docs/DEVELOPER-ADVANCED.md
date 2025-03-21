@@ -1,31 +1,38 @@
 # Some Tips to help you when you develop on Errbit
 
-## Running spec on multi-threaded mode
+## Install direnv
 
-Running the complete test suite can be really long. You can running it
-on multi-fork system with the wonderfull gem of
-[@tmm1](http://github.com/tmm1), [test-queue](http://github.com/tmm1/test-queue)
+[direnv](https://github.com/direnv/direnv) awesome tool. We recommend
+install and use it for development.
 
-If you want do it, you need install in first the gem 'test-queue'
+## Configure HTTPS for localhost
 
-```
-gem install test-queue
-```
+### Install software
 
-After you just need launch the script with adapting runner of mongoid.
+[mkcert](https://github.com/FiloSottile/mkcert)
 
-```
-./script/rspec_queue_mongoid.rb spec
+```shell
+brew install mkcert nss
 ```
 
-In my case, the complete test suite down to 2min after a 16min long
-before.
+### Install root cert
 
-## Avoid running acceptance test with phantomjs
-
-Some acceptance test use phantomjs to interpret the Javascript in page.
-To avoid this test you can launch your test by skipping js tag
-
+```shell
+mkcert -install
 ```
-bundle exec rspec spec --tag="~js"
+
+### Generate certificates
+
+```shell
+mkcert errbit.lvh.me localhost 127.0.0.1 ::1
 ```
+
+Rename the two generated files to `errbit.lvh.me.pem` and `errbit.lvh.me.key.pem` respectively.
+
+### Update Procfile.dev
+
+Uncomment `web-https` and comment `web`.
+
+### Run
+
+TODO

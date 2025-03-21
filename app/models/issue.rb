@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Issue
   include ActiveModel::Model
   attr_accessor :problem, :user, :body
@@ -14,7 +16,7 @@ class Issue
     if tracker.respond_to?(:render_body_args)
       tracker.render_body_args
     else
-      ['issue_trackers/issue', formats: [:md]]
+      ["issue_trackers/issue", formats: [:md]]
     end
   end
 
@@ -55,8 +57,8 @@ class Issue
     problem.update(issue_link: url, issue_type: tracker.class.label)
 
     errors.empty?
-  rescue => ex
-    errors.add :base, "There was an error during issue creation: #{ex.message}"
+  rescue => e
+    errors.add :base, "There was an error during issue creation: #{e.message}"
     false
   end
 end

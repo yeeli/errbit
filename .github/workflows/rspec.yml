@@ -12,21 +12,29 @@ on:
 
 jobs:
   rspec:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        mongodb-version: ["4.0", "4.2", "4.4", "5.0", "6.0"]
+        ruby: ["3.1"]
+        mongodb-version: ["4.0", "4.2", "4.4", "5.0", "6.0", "7.0", "8.0"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
+          ruby-version: ${{ matrix.ruby }}
+          rubygems: "latest"
+          bundler: "latest"
           bundler-cache: true
+
       - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.7.0
+        uses: supercharge/mongodb-github-action@1.12.0
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
+
+      - run: bundle exec rails zeitwerk:check
+      - run: bundle exec rails assets:precompile
       - run: bundle exec rake errbit:bootstrap
       - run: bundle exec rspec

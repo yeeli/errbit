@@ -1,24 +1,26 @@
-if defined? Campy
-  class NotificationServices::CampfireService < NotificationService
+# frozen_string_literal: true
+
+module NotificationServices
+  class CampfireService < NotificationService
     LABEL = "campfire"
     FIELDS += [
       [:subdomain, {
-        label:       "Subdomain",
+        label: "Subdomain",
         placeholder: "subdomain from http://{{subdomain}}.campfirenow.com"
       }],
       [:api_token, {
-        label:       "API Token",
+        label: "API Token",
         placeholder: "123456789abcdef123456789abcdef"
       }],
       [:room_id, {
-        label:       "Room ID",
+        label: "Room ID",
         placeholder: "123456"
       }]
     ]
 
     def check_params
       if FIELDS.detect { |f| self[f[0]].blank? }
-        errors.add :base, 'You must specify your Campfire Subdomain, API token and Room ID'
+        errors.add :base, "You must specify your Campfire Subdomain, API token and Room ID"
       end
     end
 
@@ -30,7 +32,7 @@ if defined? Campy
       # build the campfire client
       campy = Campy::Room.new(account: subdomain, token: api_token, room_id: room_id)
       # post the issue to the campfire room
-      campy.speak "[errbit] #{problem.app.name} #{notification_description problem} - #{Errbit::Config.protocol}://#{Errbit::Config.host}/apps/#{problem.app.id}/problems/#{problem.id}"
+      campy.speak "[errbit] #{problem.app.name} #{notification_description problem} - https://#{Errbit::Config.host}/apps/#{problem.app.id}/problems/#{problem.id}"
     end
   end
 end

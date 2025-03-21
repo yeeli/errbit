@@ -1,10 +1,14 @@
-describe UsersController, type: 'controller' do
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe UsersController, type: :controller do
   it_requires_authentication
   it_requires_admin_privileges for: {
-    index:   :get,
-    show:    :get,
-    new:     :get,
-    create:  :post,
+    index: :get,
+    show: :get,
+    new: :get,
+    create: :post,
     destroy: :delete
   }
 
@@ -12,7 +16,7 @@ describe UsersController, type: 'controller' do
   let(:user) { Fabricate(:user) }
   let(:other_user) { Fabricate(:user) }
 
-  context 'Signed in as a regular user' do
+  context "Signed in as a regular user" do
     before do
       sign_in user
     end
@@ -23,22 +27,22 @@ describe UsersController, type: 'controller' do
 
     context "GET /users/:other_id/edit" do
       it "redirects to the home page" do
-        get :edit, params: { id: other_user.id }
+        get :edit, params: {id: other_user.id}
         expect(response).to redirect_to(root_path)
       end
     end
 
     context "GET /users/:my_id/edit" do
-      it 'finds the user' do
-        get :edit, params: { id: user.id }
+      it "finds the user" do
+        get :edit, params: {id: user.id}
         expect(controller.user).to eq(user)
-        expect(response).to render_template 'edit'
+        expect(response).to render_template "edit"
       end
     end
 
     context "PUT /users/:other_id" do
       it "redirects to the home page" do
-        put :update, params: { id: other_user.id }
+        put :update, params: {id: other_user.id}
         expect(response).to redirect_to(root_path)
       end
     end
@@ -46,60 +50,60 @@ describe UsersController, type: 'controller' do
     context "PUT /users/:my_id/id" do
       context "when the update is successful" do
         it "sets a message to display" do
-          put :update, params: { id: user.to_param, user: { name: 'Kermit' } }
-          expect(request.flash[:success]).to include('updated')
+          put :update, params: {id: user.to_param, user: {name: "Kermit"}}
+          expect(request.flash[:success]).to include("updated")
         end
 
         it "redirects to the user's page" do
-          put :update, params: { id: user.to_param, user: { name: 'Kermit' } }
+          put :update, params: {id: user.to_param, user: {name: "Kermit"}}
           expect(response).to redirect_to(user_path(user))
         end
 
         it "should not be able to become an admin" do
           expect do
-            put :update, params: { id: user.to_param, user: { admin: true } }
-          end.to_not change {
+            put :update, params: {id: user.to_param, user: {admin: true}}
+          end.not_to change {
             user.reload.admin
           }.from(false)
         end
 
         it "should be able to set per_page option" do
-          put :update, params: { id: user.to_param, user: { per_page: 555 } }
+          put :update, params: {id: user.to_param, user: {per_page: 555}}
           expect(user.reload.per_page).to eq 555
         end
 
         it "should be able to set time_zone option" do
-          put :update, params: { id: user.to_param, user: { time_zone: "Warsaw" } }
+          put :update, params: {id: user.to_param, user: {time_zone: "Warsaw"}}
           expect(user.reload.time_zone).to eq "Warsaw"
         end
 
         it "should be able to not set github_login option" do
-          put :update, params: { id: user.to_param, user: { github_login: " " } }
+          put :update, params: {id: user.to_param, user: {github_login: " "}}
           expect(user.reload.github_login).to eq nil
         end
 
         it "should be able to set github_login option" do
-          put :update, params: { id: user.to_param, user: { github_login: "awesome_name" } }
+          put :update, params: {id: user.to_param, user: {github_login: "awesome_name"}}
           expect(user.reload.github_login).to eq "awesome_name"
         end
       end
 
       context "when the update is unsuccessful" do
         it "renders the edit page" do
-          put :update, params: { id: user.to_param, user: { name: nil } }
+          put :update, params: {id: user.to_param, user: {name: nil}}
           expect(response).to render_template(:edit)
         end
       end
     end
   end
 
-  context 'Signed in as an admin' do
+  context "Signed in as an admin" do
     before do
       sign_in admin
     end
 
     context "GET /users" do
-      it 'paginates all users' do
+      it "paginates all users" do
         admin.update_attribute :per_page, 2
         3.times { Fabricate(:user) }
         get :index
@@ -108,14 +112,14 @@ describe UsersController, type: 'controller' do
     end
 
     context "GET /users/:id" do
-      it 'finds the user' do
-        get :show, params: { id: user.id }
+      it "finds the user" do
+        get :show, params: {id: user.id}
         expect(controller.user).to eq user
       end
     end
 
     context "GET /users/new" do
-      it 'assigns a new user' do
+      it "assigns a new user" do
         get :new
         expect(controller.user).to be_a(User)
         expect(controller.user).to be_new_record
@@ -123,36 +127,36 @@ describe UsersController, type: 'controller' do
     end
 
     context "GET /users/:id/edit" do
-      it 'finds the user' do
-        get :edit, params: { id: user.id }
+      it "finds the user" do
+        get :edit, params: {id: user.id}
         expect(controller.user).to eq user
       end
     end
 
     context "POST /users" do
       context "when the create is successful" do
-        let(:attrs) { { user: Fabricate.to_params(:user) } }
+        let(:attrs) { {user: Fabricate.to_params(:user)} }
 
         it "sets a message to display" do
-          post :create, params: { **attrs }
-          expect(request.flash[:success]).to include('part of the team')
+          post :create, params: {**attrs}
+          expect(request.flash[:success]).to include("part of the team")
         end
 
         it "redirects to the user's page" do
-          post :create, params: { **attrs }
+          post :create, params: {**attrs}
           expect(response).to redirect_to(user_path(controller.user))
         end
 
         it "should be able to create admin" do
           attrs[:user][:admin] = true
-          post :create, params: { **attrs }
+          post :create, params: {**attrs}
           expect(response).to be_redirect
           expect(User.find(controller.user.to_param).admin).to be(true)
         end
 
         it "should has auth token" do
-          post :create, params: { **attrs }
-          expect(User.last.authentication_token).to_not be_blank
+          post :create, params: {**attrs}
+          expect(User.last.authentication_token).not_to be_blank
         end
       end
 
@@ -167,7 +171,7 @@ describe UsersController, type: 'controller' do
         end
 
         it "renders the new page" do
-          post :create, params: { user: { username: 'foo' } }
+          post :create, params: {user: {username: "foo"}}
           expect(response).to render_template(:new)
         end
       end
@@ -176,20 +180,20 @@ describe UsersController, type: 'controller' do
     context "PUT /users/:id" do
       context "when the update is successful" do
         before do
-          put :update, params: { id: user.to_param, user: user_params }
+          put :update, params: {id: user.to_param, user: user_params}
         end
 
         context "with normal params" do
-          let(:user_params) { { name: 'Kermit' } }
+          let(:user_params) { {name: "Kermit"} }
           it "sets a message to display" do
-            expect(request.flash[:success]).to eq I18n.t('controllers.users.flash.update.success', name: user.reload.name)
+            expect(request.flash[:success]).to eq I18n.t("controllers.users.flash.update.success", name: user.reload.name)
             expect(response).to redirect_to(user_path(user))
           end
         end
       end
       context "when the update is unsuccessful" do
         it "renders the edit page" do
-          put :update, params: { id: user.to_param, user: { name: nil } }
+          put :update, params: {id: user.to_param, user: {name: nil}}
           expect(response).to render_template(:edit)
         end
       end
@@ -201,24 +205,24 @@ describe UsersController, type: 'controller' do
 
         before do
           expect(UserDestroy).to receive(:new).with(user).and_return(user_destroy)
-          delete :destroy, params: { id: user.id }
+          delete :destroy, params: {id: user.id}
         end
 
-        it 'should destroy user' do
-          expect(request.flash[:success]).to eq I18n.t('controllers.users.flash.destroy.success', name: user.name)
+        it "should destroy user" do
+          expect(request.flash[:success]).to eq I18n.t("controllers.users.flash.destroy.success", name: user.name)
           expect(response).to redirect_to(users_path)
         end
       end
 
       context "with trying destroy himself" do
         before do
-          expect(UserDestroy).to_not receive(:new)
-          delete :destroy, params: { id: admin.id }
+          expect(UserDestroy).not_to receive(:new)
+          delete :destroy, params: {id: admin.id}
         end
 
-        it 'should not destroy user' do
+        it "should not destroy user" do
           expect(response).to redirect_to(users_path)
-          expect(request.flash[:error]).to eq I18n.t('controllers.users.flash.destroy.error')
+          expect(request.flash[:error]).to eq I18n.t("controllers.users.flash.destroy.error")
         end
       end
     end
@@ -231,25 +235,25 @@ describe UsersController, type: 'controller' do
             ActionController::Parameters.new(user_param)
           )
         end
-        let(:user_param) { { 'user' => { name: 'foo', admin: true } } }
-        it 'not have admin field' do
-          expect(controller.send(:user_params)).to eq('name' => 'foo')
+        let(:user_param) { {"user" => {name: "foo", admin: true}} }
+        it "not have admin field" do
+          expect(controller.send(:user_params).to_hash).to eq("name" => "foo")
         end
         context "with password and password_confirmation empty?" do
-          let(:user_param) { { 'user' => { :name => 'foo', 'password' => '', 'password_confirmation' => '' } } }
-          it 'not have password and password_confirmation field' do
-            expect(controller.send(:user_params)).to eq('name' => 'foo')
+          let(:user_param) { {"user" => {:name => "foo", "password" => "", "password_confirmation" => ""}} }
+          it "not have password and password_confirmation field" do
+            expect(controller.send(:user_params).to_hash).to eq("name" => "foo")
           end
         end
       end
 
       context "with current user admin" do
-        it 'have admin field'
+        it "have admin field"
         context "with password and password_confirmation empty?" do
-          it 'not have password and password_confirmation field'
+          it "not have password and password_confirmation field"
         end
         context "on his own user" do
-          it 'not have admin field'
+          it "not have admin field"
         end
       end
     end

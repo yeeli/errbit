@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class NoticesController < ApplicationController
   class ParamsError < StandardError; end
 
@@ -24,7 +26,7 @@ class NoticesController < ApplicationController
       render body: "Your API key is unknown", status: :unprocessable_entity
     end
   rescue Nokogiri::XML::SyntaxError
-    render body: 'The provided XML was not well-formed', status: :unprocessable_entity
+    render body: "The provided XML was not well-formed", status: :unprocessable_entity
   end
 
   # Redirects a notice to the problem page. Useful when using User Information at Airbrake gem.
@@ -39,13 +41,13 @@ class NoticesController < ApplicationController
     redirect_to app_problem_path(problem.app, problem, notice_id: notice.id)
   end
 
-private
+  private
 
   def notice_params
     return @notice_params if @notice_params
     @notice_params = params[:data] || request.raw_post
     if @notice_params.blank?
-      fail ParamsError, 'Need a data params in GET or raw post data'
+      fail ParamsError, "Need a data params in GET or raw post data"
     end
     @notice_params
   end

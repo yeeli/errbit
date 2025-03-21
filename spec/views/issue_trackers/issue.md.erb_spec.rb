@@ -1,4 +1,8 @@
-describe "issue_trackers/issue.md.erb", type: 'view' do
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe "issue_trackers/issue.md.erb", type: :view do
   let(:problem) do
     problem = Fabricate(:problem)
     Fabricate(:notice, err: Fabricate(:err, problem: problem))
@@ -11,6 +15,6 @@ describe "issue_trackers/issue.md.erb", type: 'view' do
 
   it "has the problem url" do
     render template: "issue_trackers/issue.md.erb"
-    expect(rendered).to match(app_problem_url problem.app, problem)
+    expect(rendered).to match(app_problem_url(problem.app, problem))
   end
 end
